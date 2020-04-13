@@ -1,3 +1,6 @@
+variables:
+- group: 'jellyfin'
+
 trigger:
   batch: true
   branches:
@@ -88,7 +91,7 @@ jobs:
     displayName: 'Publish'
 
     dependsOn: Build
-    condition: startsWith(variables['Build.SourceBranch'], 'refs/tags')
+    #condition: startsWith(variables['Build.SourceBranch'], 'refs/tags')
 
     strategy:
       matrix:
@@ -131,16 +134,19 @@ jobs:
         gitHubConnection: Jellyfin Release Download
         repositoryName: jellyfin/jellyfin-android
         assets: '$(System.ArtifactsDirectory)/*.apk'
+        action: edit
+        assetUploadMode: 'replace'
+        tag: '$(TAG)'
 
     - task: CopyFilesOverSSH@0
       inputs:
         sshEndpoint: repository
         sourceFolder: '$(System.ArtifactsDirectory)'
         contents: '**'
-        targetFolder: '/srv/jellyfin/repos/clients/android/versions/$(TAG)'
+        targetFolder: '/srv/repository/releases/client/android/versions/$(TAG)'
 
     - task: SSH@0
       inputs:
         sshEndpoint: repository
         runOptions: 'inline'
-        inline: 'ln -s /srv/jellyfin/repos/client/android/versions/$(TAG)/* /srv/jellyfin/repos/client/android'
+        inline: 'ln -s /srv/jellyfin/repository/releases/android/versions/$(TAG)/* /srv/repository/releases/client/android'
