@@ -120,14 +120,14 @@ jobs:
         path: '$(System.ArtifactsDirectory)'
         runVersion: 'latest'
 
-    - task: AndroidSigning@3
-      displayName: 'Sign APK'
-      condition: eq(variables['BuildConfiguration'], 'release')
+    - task: DownloadSecureFile@1
+      displayName: 'Download KeyStore'
+      name: 'KeyStore'
       inputs:
-        apkFiles: '$(System.ArtifactsDirectory)/*.apk'
-        keystoreFile: keystore
-        keystorePassword: $(KeyStorePassword)
-        zipalign: false
+        secureFile: 'keystore'
+
+    - script: '$(find / -name apksigner -print -quit) sign --ks $(KeyStore.SecureFilePath) --ks-pass pass:$(KeyStorePassword) $(SystemArtifactsDirectory)/jellyfin-android-$(ArtifactSuffix)-$(TAG)'
+      displayName: 'Sign APK'
 
     #- task: GithubRelease@0
     #  displayName: 'GitHub Upload'
@@ -149,5 +149,5 @@ jobs:
     - task: SSH@0
       inputs:
         sshEndpoint: repository
-        runOptions: 'commands'
-        commands: 'ln -s /srv/jellyfin/repository/releases/android/versions/$(TAG)/* /srv/repository/releases/client/android'
+        runOptions: 'inline'
+        commands: 'ln -s /srv/jellyfin/repository/releases/android/versions/$(TAG)/jellyfin-android-$(ArtifactSuffix)-$(TAG).apk /srv/repository/releases/client/android'
