@@ -127,16 +127,17 @@ jobs:
         apkFiles: '$(System.ArtifactsDirectory)/*.apk'
         keystoreFile: keystore
         keystorePassword: $(KeyStorePassword)
+        zipalign: false
 
-    - task: GithubRelease@0
-      displayName: 'GitHub Upload'
-      inputs:
-        gitHubConnection: Jellyfin Release Download
-        repositoryName: jellyfin/jellyfin-android
-        assets: '$(System.ArtifactsDirectory)/*.apk'
-        action: edit
-        assetUploadMode: 'replace'
-        tag: '$(TAG)'
+    #- task: GithubRelease@0
+    #  displayName: 'GitHub Upload'
+    #  inputs:
+    #    gitHubConnection: Jellyfin Release Download
+    #    repositoryName: jellyfin/jellyfin-android
+    #    assets: '$(System.ArtifactsDirectory)/*.apk'
+    #    action: 'edit'
+    #    assetUploadMode: 'replace'
+    #    tag: '$(TAG)'
 
     - task: CopyFilesOverSSH@0
       inputs:
@@ -148,5 +149,5 @@ jobs:
     - task: SSH@0
       inputs:
         sshEndpoint: repository
-        runOptions: 'inline'
-        inline: 'ln -s /srv/jellyfin/repository/releases/android/versions/$(TAG)/* /srv/repository/releases/client/android'
+        runOptions: 'commands'
+        commands: 'ln -s /srv/jellyfin/repository/releases/android/versions/$(TAG)/* /srv/repository/releases/client/android'
