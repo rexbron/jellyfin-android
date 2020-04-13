@@ -134,7 +134,7 @@ jobs:
       inputs:
         secureFile: 'keystore'
 
-    - script: '$(find / -name apksigner -print -quit) sign --ks ${KEYSTORE_SECUREFILEPATH} --ks-pass pass:${PASSWORD} ${SYSTEM_ARTIFACTSDIRECTORY}/jellyfin-android-${ARTIFACTSUFFIX}-${TAG}'
+    - script: '$(find / -name apksigner -print -quit) sign --ks ${KEYSTORE_SECUREFILEPATH} --ks-pass pass:${PASSWORD} ${SYSTEM_ARTIFACTSDIRECTORY}/jellyfin-android-${ARTIFACTSUFFIX}-${TAG}.apk'
       displayName: 'Sign APK'
       condition: eq(variables['BuildConfiguration'], 'release')
       env:
