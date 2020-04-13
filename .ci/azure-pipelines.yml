@@ -47,8 +47,16 @@ jobs:
       inputs:
         versionSpec: '12.x'
 
+    - task: Cache@2
+      displayName: 'Check Cache'
+      inputs:
+        key: 'npm | package-lock.json'
+        path: 'node_modules'
+        cacheHitVar: CACHE_RESTORED
+
     - script: 'npm ci'
       displayName: 'Install Dependencies'
+      condition: ne(variables.CACHE_RESTORED, 'true')
 
     - script: 'npx cordova prepare'
       displayName: 'Prepare Cordova'
@@ -126,7 +134,7 @@ jobs:
       inputs:
         secureFile: 'keystore'
 
-    - script: '$(find / -name apksigner -print -quit) sign --ks ${KEYSTORE_SECUREFILEPATH} --ks-pass pass:${PASSWORD} ${SYSTEM_ARTIFACTSDIRECTORY}/jellyfin-android-${ArtifactSuffix}-${TAG}'
+    - script: '$(find / -name apksigner -print -quit) sign --ks ${KEYSTORE_SECUREFILEPATH} --ks-pass pass:${PASSWORD} ${SYSTEM_ARTIFACTSDIRECTORY}/jellyfin-android-${ARTIFACTSUFFIX}-${TAG}'
       displayName: 'Sign APK'
       condition: eq(variables['BuildConfiguration'], 'release')
       env:
@@ -153,4 +161,4 @@ jobs:
       inputs:
         sshEndpoint: repository
         runOptions: 'inline'
-        inline: 'ln -s /srv/jellyfin/repository/releases/android/versions/$(TAG)/jellyfin-android-$(ArtifactSuffix)-$(TAG).apk /srv/repository/releases/client/android'
+        inline: 'cd /srv/jellyfin/repository/releases/android && ln -s versions/$(TAG)/jellyfin-android-$(ArtifactSuffix)-$(TAG).apk .'
